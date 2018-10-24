@@ -1,2 +1,2 @@
 # my-repo
-Some little thoughts I wrote into codes.
+Some thoughts I wrote into codes.
