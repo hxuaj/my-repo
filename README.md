@@ -6,5 +6,6 @@ Some thoughts I wrote into codes.
 * Floating point arithmetic
 * Reduced row echelon form
 * The absolute error in numerical diffenentiation
+* Batch normalization
 
-10/30/2018
+1/2/2019
