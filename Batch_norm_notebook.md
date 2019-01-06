@@ -39,10 +39,10 @@ Batch Normalization Algorithm 2: <div align=center> ![algorithm 2][picstr2] </di
 - Step 6~7：训练含有BN层的网络，优化包括$\gamma$，$\beta$和原网络中的参数$\Theta$。
 - Step 8~12：输入多个batch。用多个batch的均值和方差估计训练集整体的统计信息。在预测(inference)时使用整体统计信息。
 
-## Batch Normalization for CNN
+## Batch Normalization for CNN
 
 作者提出了BN在网络中的具体部署：$ (\text{affine}: Wu+b) \rightarrow \text{BN} \rightarrow \text{non-linearity}$
-这里之所以不normalize $u$，是因为$u$是前一层的输出，所以$u$的分布很可能随着训练的过程发生变化，而且对$u$标准化不会消除经过训练后的$Wu+b$所产生的covariate shift。另一个原因是$Wu+b$更可能产生对称且非稀疏的分布，更Gaussian，标准化$Wu+b$更可能产生稳定的分布。
+这里之所以不normalize $u$，是因为$u$是前一层的输出，所以$u$的分布很可能随着训练的过程发生变化，而且对$u$标准化不会消除经过训练后的$Wu+b$所产生的covariate shift。另一个原因是$Wu+b$更可能产生对称且非稀疏的分布，更Gaussian，标准化$Wu+b$更可能产生稳定的分布。
 
 对于卷积层，标准化在一个mini-batch中的所有位置的activation。此时一个mini-batch中feature maps中的所有值对应算法1中的${\frak{B}}$。另外对于每个feature map训练得到一对$\gamma^{(k)} ,\beta^{(k)}$。
 
@@ -51,24 +51,24 @@ Group Normalization(TBD)
 ## 使用BN的优点
 在网络中使用BN，从而允许更高的学习速率和更粗放的初始化；某种程度上达到正则化的效果，降低对Dropout的需求。
 
-###更高的学习速率
-1. 对于传统的深度网络，过高的学习速率会导致梯度消失，而且会困于糟糕的局部最小值或者鞍点。BN防止参数的小变化被放大得更大以及activation的梯度的不好的变化（如困在non-linearity的饱和区域）。
+### 更高的学习速率
+1. 对于传统的深度网络，过高的学习速率会导致梯度消失，而且会困于糟糕的局部最小值或者鞍点。BN防止参数的小变化被放大得更大以及activation的梯度的不好的变化（如困在non-linearity的饱和区域）。
 2. BN还使得训练对参数的scale有弹性（或不敏感）。
    通常情况下，增大学习速率会增加参数的数值范围(scale)，从而增加反向传输时的梯度大小，导致model explosion。
-   但BN对参数的scale不敏感：
+   但BN对参数的scale不敏感：
    正向传输：$\operatorname {BN}(Wu)=\operatorname {BN}((aW)u)$
    反向传输：$\frac{\partial \operatorname {BN}((aW)u)}{\partial u}=\frac{\partial \operatorname {BN}(Wu)}{\partial u}$，$\frac{\partial \operatorname {BN}((aW)u)}{\partial (aW)}=\frac 1 a \frac{\partial \operatorname {BN}(Wu)}{\partial W}$
    层参数的scale不会影响到梯度的传播，反而更大scale的weights会有更小的梯度。BN会使得参数的成长变得稳定。
-3. BN使层的Jacobian矩阵有靠近1的奇异值（有利于训练）。
+3. BN使层的Jacobian矩阵有靠近1的奇异值（有利于训练）。
    考虑两个连续的层有着标准化的输入：$\hat z=F(\hat x)$。假设$\hat x$和$\hat z$都是Gaussian的且不相关，$F(\hat x)\approx J\hat x$是由模型参数构成的线性变换。因为$\hat x$和$\hat z$有着单位的协方差，$I=\operatorname {Cov}[\hat z]=J\operatorname {Cov}[\hat x]J^T=JJ^T$。
    $$\operatorname {Cov}(\hat z)=\operatorname {Cov}(J\hat x)=\operatorname {E}[J\hat x \hat x^T J^T]-\operatorname {E}[J\hat x]\operatorname {E}[J\hat x]^T$$ $$=\operatorname {E}[J\hat x \hat x^T J^T]-\operatorname {E}[J\hat x]\operatorname {E}[\hat x^TJ^T]$$ $$=J\operatorname {E}[\hat x\hat x^T]J^T - J\operatorname {E}[\hat x]\operatorname {E}[\hat x^T]J^T$$ $$=J\operatorname {Cov}[\hat x]J^T$$ 因为$JJ^T=I$，所以$J$的所有奇异值都为1，所以$\operatorname {det}(J)=1 \ or-1$，这意味着矩阵的大小（体积）为1。在反向传播时可以保留梯度的大小和量级。
    但是现实中，变换过程不是线性的，并且标准化的值不一定保证是Gaussian或互相独立的，但是BN还是有一定的作用。
 
-###正则化作用
-对于特定的一个样本可能出现在不同的Batch里，所以BN后会取决于不同batch的其他样本。某种程度上有一定正则化作用。
+### 正则化作用
+对于特定的一个样本可能出现在不同的Batch里，所以BN后会取决于不同batch的其他样本。某种程度上有一定正则化作用。
 而在test的时候，训练的数据和test的数据都有相同的分布，也有正则化的效果。
 
-##Implementation
+## Implementation
 
 
 ---
