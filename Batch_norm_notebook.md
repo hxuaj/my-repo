@@ -46,7 +46,8 @@ Batch Normalization Algorithm 2: <div align=center> ![algorithm 2][picstr2] </di
 
 对于卷积层，标准化在一个mini-batch中的所有位置的activation。此时一个mini-batch中feature maps中的所有值对应算法1中的${\frak{B}}$。另外对于每个feature map训练得到一对$\gamma^{(k)} ,\beta^{(k)}$。
 
-Group Normalization(TBD)
+### Group Normalization(TBD)
+[Group Normalization - Yuxin Wu, Kaiming He](https://arxiv.org/abs/1803.08494)
 
 ## 使用BN的优点
 在网络中使用BN，从而允许更高的学习速率和更粗放的初始化；某种程度上达到正则化的效果，降低对Dropout的需求。
