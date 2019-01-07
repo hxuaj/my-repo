@@ -70,7 +70,48 @@ Batch Normalization Algorithm 2: <div align=center> ![algorithm 2][picstr2] </di
 而在test的时候，训练的数据和test的数据都有相同的分布，也有正则化的效果。
 
 ## Implementation
+### Forward pass
+BN的正向传输比较简单直观，但要注意保存用于inference的整体均值和方差信息。在算法2中，整体方差是用部分batch的均值和无偏差的方差来估计整体。$$\mu=\frac{1}{B}\sum_i^B \mu_i$$ $$\sigma^2=\frac{1}{B-1}\sum_i^B \sigma_i^2$$但是这样的计算较为繁琐，在CS231n中使用了动态平均计算记录均值和方差作为训练集整体的统计信息。$$\mu=m*\mu+(1-m)*\mu_i$$ $$\sigma^2=m*\sigma^2+(1-m)*\sigma_i^2$$其中$m$代表[0,1]的momentum，通常取靠近1的值如0.9，0.99，0.999。
+```python
+def batchnorm_forward(x, gamma, beta, bn_param):
 
+    mode = bn_param['mode']
+    eps = bn_param.get('eps', 1e-5)
+    momentum = bn_param.get('momentum', 0.9)
+
+    N, D = x.shape
+    running_mean = bn_param.get('running_mean', np.zeros(D, dtype=x.dtype))
+    running_var = bn_param.get('running_var', np.zeros(D, dtype=x.dtype))
+
+    out, cache = None, None
+    if mode == 'train':
+
+        x_mean = np.mean(x, axis=0)
+        x_var = np.var(x, axis=0)
+        x_norm = (x - x_mean) / np.sqrt(x_var + eps)
+        out = gamma * x_norm + beta
+
+        running_mean = momentum * running_mean + (1 - momentum) * x_mean
+        running_var = momentum * running_var + (1 - momentum) * x_var
+        cache = (x, x_norm, x_mean, x_var, gamma, beta, eps)
+
+    elif mode == 'test':
+
+        x_test_norm = (x - running_mean) / np.sqrt(running_var + eps)
+        out = gamma * x_test_norm + beta 
+
+    else:
+        raise ValueError('Invalid forward batchnorm mode "%s"' % mode)
+
+    # Store the updated running means back into bn_param
+    bn_param['running_mean'] = running_mean
+    bn_param['running_var'] = running_var
+
+    return out, cache
+```
+
+### Backward pass
+
 
 ---
 
