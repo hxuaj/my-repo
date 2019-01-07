@@ -71,7 +71,7 @@ Batch Normalization Algorithm 2: <div align=center> ![algorithm 2][picstr2] </di
 
 ## Implementation
 ### Forward pass
-BN的正向传输比较简单直观，但要注意保存用于inference的整体均值和方差信息。在算法2中，整体方差是用部分batch的均值和无偏差的方差来估计整体。$$\mu=\frac{1}{B}\sum_i^B \mu_i$$ $$\sigma^2=\frac{1}{B-1}\sum_i^B \sigma_i^2$$但是这样的计算较为繁琐，在CS231n中使用了动态平均计算记录均值和方差作为训练集整体的统计信息。$$\mu=m*\mu+(1-m)*\mu_i$$ $$\sigma^2=m*\sigma^2+(1-m)*\sigma_i^2$$其中$m$代表[0,1]的momentum，通常取靠近1的值如0.9，0.99，0.999。
+BN的正向传输比较简单直观，但要注意保存用于inference的整体均值和方差信息。在算法2中，整体方差是用部分batch的均值和无偏差的方差来估计整体。$$\mu=\frac{1}{B}\sum_i^B \mu_i$$ $$\sigma^2=\frac{1}{B-1}\sum_i^B \sigma_i^2$$但是这样的计算较为繁琐，在CS231n中使用了动态平均计算记录均值和方差作为训练集整体的统计信息。$$\mu=m*\mu+(1-m)*\mu_i$$ $$\sigma^2=m*\sigma^2+(1-m)*\sigma_i^2$$其中$m$代表[0,1]的momentum，通常取靠近1的值如0.9，0.99，0.999。
 ```python
 def batchnorm_forward(x, gamma, beta, bn_param):
 
@@ -111,7 +111,7 @@ def batchnorm_forward(x, gamma, beta, bn_param):
 ```
 
 ### Backward pass
-
+
 
 ---
 
