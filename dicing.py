@@ -13,7 +13,7 @@ while num < int(player_num):
 while True:
     n = index%len(player)
     game_round = index // len(player) + 1
-    i = input("Round{}. It's time for {} to dice! Press Enter! (Input h for more info.)\n"
+    i = input("Round{}. It's time for {} to dice! Press Enter! (Input help for more info.)\n"
               .format(game_round, player[n]))
     
     if i == 'help':
