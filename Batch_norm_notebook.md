@@ -112,6 +112,44 @@ def batchnorm_forward(x, gamma, beta, bn_param):
 
 ### Backward pass
 
+这里记录下我的一些心得体会。直接整体笔算出的梯度公式往往会比用图方法拆分计算步骤更快。整体推算出的梯度相当于把整个BN过程看成一个节点来计算，而把BN拆分成很多计算步骤再分别求梯度这样的运算过程更多但是相对容易部署。
+在刚开始计算反向传输的梯度时，没有拆分计算步骤，而是整体计算梯度。我采用的是矩阵求导的方法，面对较简单的计算过程求导比较方便，但是对于复杂过程求导容易推导错误而花时间纠错。后面将会介绍用标量进行求导，并且化简，部署需要注意偏导相乘时每个偏导的形状是标量还是矩阵。先用标量求导的推算过程较快，也比较方便化简最终优化到速度最快，但是要注意正向过程及参数形状。
+
+#### 1. 矩阵求导方法
+
+变量定义：
+* 输入为$X_{N\times D}$。
+* $\overrightarrow{\gamma}, \overrightarrow{\beta}$皆为$(1\times D)$的向量(以下简写为$\gamma, \beta$)，因为BN的操作是对一个batch(size N)中每个维度分别操作的，所以对应$X$中的一个列向量会有一组对应的* $(\gamma_i, \beta_i)$。
+* $\mu_{1\times D}$为平均值组成的行向量。
+* $\sigma^2_{1\times D}$为方差组成的行向量。
+* $Y_{N\times D}$是BN层的输出。$l$是最终的loss，为一个标量。
+![BN_grapy](BN_graph.jpeg)
+
+已知```dout```即$\frac{\partial l}{\partial Y}$，定义一个元素全为1的列向量为$\Bbb 1_{N\times 1}$，用矩阵的方式表示BN的正向过程为：$$\hat{X}=(X-\Bbb{1} \cdot \mu)\odot (\Bbb{1} \cdot \frac{1}{\sqrt{\sigma^2+\epsilon}})$$ $$Y = \hat{X} \odot (\Bbb{1}\cdot \gamma)+\Bbb{1}\cdot\beta$$ 
+
+梯度求解：
+1. $\frac{\partial l}{\partial \beta}$ 
+$$\begin{aligned}
+    \operatorname{d}l&=\operatorname{tr}\left( \left(\frac{\partial l}{\partial Y}\right)^T \operatorname{d}Y\right) \\ &=\operatorname{tr}\left( \left(\frac{\partial l}{\partial Y}\right)^T \operatorname{d}(\Bbb{1}\cdot\beta)\right) \\ &=\operatorname{tr}\left( \left(\frac{\partial l}{\partial Y}\right)^T \cdot\Bbb{1}\operatorname{d}\beta\right)=\operatorname{tr}\left( \left(\frac{\partial l}{\partial Y}\right)^T \cdot\Bbb{1}\operatorname{d}\beta\right) \\ \frac{\partial l}{\partial \beta} &= \Bbb{1}^T \cdot \frac{\partial l}{\partial Y}
+\end{aligned}$$
+
+2. $\frac{\partial l}{\partial \gamma}$
+$$\begin{aligned}
+    \operatorname{d}l&=\operatorname{tr}\left( \left(\frac{\partial l}{\partial Y}\right)^T \operatorname{d}Y\right)=\operatorname{tr}\left( \left(\frac{\partial l}{\partial Y}\right)^T \operatorname{d}(\hat{X} \odot (\Bbb{1}\cdot \gamma))\right) \\&=\operatorname{tr}\left( \left(\frac{\partial l}{\partial Y}\right)^T \left(\hat{X}\odot \operatorname{d}(\Bbb{1}\cdot \gamma)\right)\right)=\operatorname{tr}\left( \left(\frac{\partial l}{\partial Y}\right)^T \left(\hat{X}\odot (\Bbb{1}\cdot \operatorname{d}\gamma)\right)\right) \\&=\operatorname{tr}\left( \left(\frac{\partial l}{\partial Y} \odot\hat{X}\right)^T\cdot\Bbb{1}\operatorname{d}\gamma\right)\\ 
+    \frac{\partial l}{\partial \gamma} &= \Bbb{1}^T\cdot\left(\frac{\partial l}{\partial Y}\odot\hat{X}\right)
+\end{aligned}$$
+
+3. $\frac{\partial l}{\partial X}$
+ 因为$X$和$\hat{X},\ \gamma,\ \beta$都有关，所以$\frac{\partial l}{\partial X}$要分为3个部分求导再相加。
+    $$\frac{\partial f}{\partial x_i} = \frac{\partial f}{\partial \hat{x}_i} \cdot \color{red}{\frac{\partial \hat{x}_i}{\partial x_i}} \color{black}{+ \frac{\partial f}{\partial \mu} \cdot }\color{red}{\frac{\partial \mu}{\partial x_i}} \color{black}{ + \frac{\partial f}{\partial \sigma^2} \cdot }\color{red}{\frac{\partial \sigma^2}{\partial x_i}}$$ 但需要注意这里是标量的求导，对于矩阵求导不能简单相乘，需要在$\operatorname{tr}()$中运用链式法则。
+    * $\frac{\partial l}{\partial \hat{X}}$
+    $$\begin{aligned}
+        \operatorname{d}l&=\operatorname{tr}\left( \left(\frac{\partial l}{\partial Y}\right)^T \operatorname{d}Y\right)=\operatorname{tr}\left( \left(\frac{\partial l}{\partial Y}\right)^T \operatorname{d}(\hat{X} \odot (\Bbb{1}\cdot \gamma))\right) \\ &= \operatorname{tr}\left( \left(\frac{\partial l}{\partial Y}\right)^T (\operatorname{d}\hat{X} \odot (\Bbb{1}\cdot \gamma))\right)=\operatorname{tr}\left( \left(\frac{\partial l}{\partial Y}\right)^T ((\Bbb{1}\cdot \gamma) \odot \operatorname{d}\hat{X})\right)\\&=\operatorname{tr}\left( \left(\frac{\partial l}{\partial Y}\odot(\Bbb{1}\cdot \gamma) \right)^T \operatorname{d}\hat{X}\right)
+        \\ \frac{\partial l}{\partial \hat{X}} &= \frac{\partial l}{\partial Y}\odot(\Bbb{1}\cdot \gamma)
+    \end{aligned}$$
+    * $\frac{\partial l}{\partial \hat{X}} \longrightarrow \frac{\partial l}{\partial X}$
+
+
 
 ---
 
