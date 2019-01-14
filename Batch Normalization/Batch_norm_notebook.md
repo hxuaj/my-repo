@@ -112,7 +112,7 @@ def batchnorm_forward(x, gamma, beta, bn_param):
 
 ### Backward pass
 
-这里记录下我的一些心得体会。直接整体笔算出的梯度公式往往会比用图方法拆分计算步骤更快。整体推算出的梯度相当于把整个BN过程看成一个节点来计算，而把BN拆分成很多计算步骤再分别求梯度这样的运算过程更多但是相对容易部署。
+这里记录下我对于backprop的一些心得体会。直接整体笔算出的梯度公式往往会比用图方法拆分计算步骤更快。整体推算出的梯度相当于把整个BN过程看成一个节点来计算，而把BN拆分成很多计算步骤再分别求梯度这样的运算过程更多但是相对容易部署。
 在刚开始计算反向传输的梯度时，没有拆分计算步骤，而是整体计算梯度。我采用的是矩阵求导的方法，面对较简单的计算过程求导比较方便，但是对于复杂过程求导容易推导错误而花时间纠错。后面将会介绍用标量进行求导，并且化简，部署需要注意偏导相乘时每个偏导的形状是标量还是矩阵。先用标量求导的推算过程较快，也比较方便化简最终优化到速度最快，但是要注意正向过程及参数形状。
 
 #### 1. 矩阵求导方法
@@ -217,18 +217,28 @@ $$\begin{aligned}
 \end{aligned}$$
 在计算偏导的相乘中，需要特别注意具有求和的部分和不要加入求和的部分（如第三项的$\frac{\partial \sigma^2}{\partial x_i}$不应该加入前面的求和中）。这里针对求导的结果做了必要的化简，提取了3个部分中的共同成分，否则在部署成代码时则会额外计算共同的部分3次，从而降低计算速度。最终的计算速度比原先提高了1.8倍左右。并且在正向传输过程中需要cache的值也进一步减少。
 ```python
-backpropagation code
+def batchnorm_backward_alt(dout, cache):
+
+    dx, dgamma, dbeta = None, None, None
+
+    N, D = np.shape(dout)
+    _, x_hat, x_mu, var, gamma, _, eps = cache
+
+    dxhat = dout * gamma
+    dx = (1.0 / N) * (1.0 / np.sqrt(var + eps)) * (N*dxhat - np.sum(dxhat, axis=0) \
+         - x_hat*np.sum(dxhat*x_hat, axis=0))
+    dbeta = np.sum(dout, axis=0)
+    dgamma = np.sum(x_hat*dout, axis=0)
+
+    return dx, dgamma, dbeta
 ```
 
-Reference
-[Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift - Sergey Ioffe, Christian Szegedy](https://arxiv.org/abs/1502.03167)
-[Group Normalization - Yuxin Wu, Kaiming He](https://arxiv.org/abs/1803.08494)
+#### Reference
 
-
-
-
-
-
+- [Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift - Sergey Ioffe, Christian Szegedy](https://arxiv.org/abs/1502.03167)
+- [Group Normalization - Yuxin Wu, Kaiming He](https://arxiv.org/abs/1803.08494)
+- [Understanding the backward pass through Batch Normalization Layer](https://kratzert.github.io/2016/02/12/understanding-the-gradient-flow-through-the-batch-normalization-layer.html)
+- [Deriving the Gradient for the Backward Pass of Batch Normalization](https://kevinzakka.github.io/2016/09/14/batch_normalization/)
 
 
 
