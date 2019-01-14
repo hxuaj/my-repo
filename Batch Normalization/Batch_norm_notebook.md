@@ -155,7 +155,7 @@ $$\begin{aligned}
         \\&= \operatorname{tr}\left(\left(\frac{\partial l}{\partial \hat{X}}\odot (\Bbb{1}\cdot \frac{1}{\sqrt{\sigma^2+\epsilon}})\right)^T\operatorname{d}X\right)\\ \left(\frac{\partial l}{\partial X}\right)_1&=\frac{\partial l}{\partial \hat{X}}\odot (\Bbb{1}\cdot \frac{1}{\sqrt{\sigma^2+\epsilon}})
     \end{aligned}$$
     * $\frac{\partial l}{\partial \mu} \longrightarrow \left(\frac{\partial l}{\partial X}\right)_2$
-    $\\$
+    $$\\$$
     首先计算$\frac{\partial l}{\partial \mu}$，用标量表示梯度为：$\frac{\partial l}{\partial \mu}=\frac{\partial l}{\partial \hat{x}} \frac{\partial \hat{x}}{\partial \mu}+\frac{\partial l}{\partial \sigma^2}\frac{\partial \sigma^2}{\partial \mu}$，因为$\frac{\partial \sigma^2}{\partial\mu}=\frac{2}{N}\sum_{i=1}^N (\mu-x_i)=0$，所以$\frac{\partial l}{\partial \mu}=\frac{\partial l}{\partial \hat{x}} \frac{\partial \hat{x}}{\partial \mu}$。
     $$\begin{aligned}
         \operatorname{d}\hat{X}&=-\operatorname{d}(\Bbb{1}\cdot\mu)\odot(\Bbb{1}\cdot \frac{1}{\sqrt{\sigma^2+\epsilon}})\\&= -(\Bbb{1}\cdot \frac{1}{\sqrt{\sigma^2+\epsilon}})\odot(\Bbb{1}\cdot\operatorname{d}\mu)\\
@@ -204,17 +204,16 @@ $$\frac{\partial l}{\partial x_i} = \frac{\partial l}{\partial \hat{x}_i} \cdot 
     \end{aligned}$$
 2. $\frac{\partial l}{\partial \mu} \cdot \frac{\partial \mu}{\partial x_i}$
     $$\begin{aligned}
-        \frac{\partial l}{\partial \mu}&=\frac{\partial l}{\partial \hat{x_i}}\frac{\partial \hat{x_i}}{\partial \mu}+\frac{\partial l}{\partial \sigma^2}\frac{\partial \sigma^2}{\partial \mu} \\&= \sum\limits_{i=1}^N  \frac{\partial l}{\partial \hat{x}_i} \cdot \frac{-1}{\sqrt{\sigma^2 + \epsilon}}+\frac{\partial f}{\partial \sigma^2} \cdot \frac{1}{N} \sum\limits_{i=1}^N -2(x_i - \mu)\\&=\sum\limits_{i=1}^N  \frac{\partial l}{\partial \hat{x}_i} \cdot \frac{-1}{\sqrt{\sigma^2 + \epsilon}}\\\frac{\partial \mu}{\partial x_i}&=\frac{1}{N}
+        \frac{\partial l}{\partial \mu}&=\frac{\partial l}{\partial \hat{x_i}}\frac{\partial \hat{x_i}}{\partial \mu}+\frac{\partial l}{\partial \sigma^2}\frac{\partial \sigma^2}{\partial \mu} \\&= \sum_{i=1}^N  \frac{\partial l}{\partial \hat{x}_i} \cdot \frac{-1}{\sqrt{\sigma^2 + \epsilon}}+\frac{\partial f}{\partial \sigma^2} \cdot \frac{1}{N} \sum_{i=1}^N -2(x_i - \mu)\\&=\sum_{i=1}^N  \frac{\partial l}{\partial \hat{x}_i} \cdot \frac{-1}{\sqrt{\sigma^2 + \epsilon}}\\\frac{\partial \mu}{\partial x_i}&=\frac{1}{N}
     \end{aligned}$$
 3. $\frac{\partial l}{\partial \sigma^2} \cdot \frac{\partial \sigma^2}{\partial x_i}$
     $$\begin{aligned}
-        \frac{\partial l}{\partial \sigma^2}&=\frac{\partial l}{\partial \hat{x_i}}\frac{\partial \hat{x_i}}{\partial \sigma^2}\\&=\sum_{i=1}^N\frac{\partial l}{\partial \hat{x_i}}\cdot (x_i - \mu) \cdot (-\frac{1}{2}) \cdot (\sigma^2 + \epsilon)^{-\frac{3}{2}}\\
-        \frac{\partial \sigma^2}{\partial x_i}&=\frac{2}{N}(x_i-\mu)
+        \frac{\partial l}{\partial \sigma^2}&=\frac{\partial l}{\partial \hat{x_i}}\frac{\partial \hat{x_i}}{\partial \sigma^2}\\&=\sum_{i=1}^N\frac{\partial l}{\partial \hat{x_i}}\cdot (x_i - \mu) \cdot (-\frac{1}{2}) \cdot (\sigma^2 + \epsilon)^{-\frac{3}{2}}\\ \frac{\partial \sigma^2}{\partial x_i}&=\frac{2}{N}(x_i-\mu)
     \end{aligned}$$
 
 所以最终$x_i$的偏导为3部分的相加：
 $$\begin{aligned}
-    \frac{\partial l}{\partial x_i} &= \frac{\partial l}{\partial \hat{x}_i} \cdot \frac{\partial \hat{x}_i}{\partial x_i} + \frac{\partial l}{\partial \mu} \cdot \frac{\partial \mu}{\partial x_i} + \frac{\partial l}{\partial \sigma^2} \cdot \frac{\partial \sigma^2}{\partial x_i}\\&=\frac{\partial l}{\partial \hat{x}_i} \cdot \dfrac{1}{\sqrt{\sigma^2 + \epsilon}} + \frac{\partial f}{\partial \mu} \cdot \dfrac{1}{N} + \frac{\partial f}{\partial \sigma^2} \cdot \dfrac{2(x_i - \mu)}{N}\\&=\bigg(\frac{\partial l}{\partial \hat{x}_i} \cdot \dfrac{1}{\sqrt{\sigma^2 + \epsilon}}\bigg) + \bigg(\frac{1}{N} \sum\limits_{j=1}^N  \frac{\partial l}{\partial \hat{x}_j} \cdot \frac{-1}{\sqrt{\sigma^2 + \epsilon}}\bigg) - \Bigg(\left(\frac{1}{2} \sum\limits_{j=1}^N \frac{\partial l}{\partial \hat{x}_j} \cdot (x_j - \mu) \cdot (\sigma^2 + \epsilon)^{-1.5}\right) \cdot \dfrac{2(x_i - \mu)}{N} \Bigg)\\&=\frac{1}{N\sqrt{\sigma^2+\epsilon}}\cdot\left(N\cdot\frac{\partial l}{\partial \hat{x}_i}-\sum\limits_{j=1}^N  \frac{\partial l}{\partial \hat{x}_j}-\hat{x_i}\sum\limits_{j=1}^N \frac{\partial l}{\partial \hat{x_j}}\cdot\hat{x_j}\right)
+    \frac{\partial l}{\partial x_i} &= \frac{\partial l}{\partial \hat{x}_i} \cdot \frac{\partial \hat{x}_i}{\partial x_i} + \frac{\partial l}{\partial \mu} \cdot \frac{\partial \mu}{\partial x_i} + \frac{\partial l}{\partial \sigma^2} \cdot \frac{\partial \sigma^2}{\partial x_i}\\&=\frac{\partial l}{\partial \hat{x}_i} \cdot \dfrac{1}{\sqrt{\sigma^2 + \epsilon}} + \frac{\partial f}{\partial \mu} \cdot \dfrac{1}{N} + \frac{\partial f}{\partial \sigma^2} \cdot \dfrac{2(x_i - \mu)}{N}\\&=\bigg(\frac{\partial l}{\partial \hat{x}_i} \cdot \dfrac{1}{\sqrt{\sigma^2 + \epsilon}}\bigg) + \bigg(\frac{1}{N} \sum_{j=1}^N  \frac{\partial l}{\partial \hat{x}_j} \cdot \frac{-1}{\sqrt{\sigma^2 + \epsilon}}\bigg) - \Bigg(\left(\frac{1}{2} \sum_{j=1}^N \frac{\partial l}{\partial \hat{x}_j} \cdot (x_j - \mu) \cdot (\sigma^2 + \epsilon)^{-1.5}\right) \cdot \dfrac{2(x_i - \mu)}{N} \Bigg)\\&=\frac{1}{N\sqrt{\sigma^2+\epsilon}}\cdot\left(N\cdot\frac{\partial l}{\partial \hat{x}_i}-\sum_{j=1}^N  \frac{\partial l}{\partial \hat{x}_j}-\hat{x_i}\sum_{j=1}^N \frac{\partial l}{\partial \hat{x_j}}\cdot\hat{x_j}\right)
 \end{aligned}$$
 在计算偏导的相乘中，需要特别注意具有求和的部分和不要加入求和的部分（如第三项的$\frac{\partial \sigma^2}{\partial x_i}$不应该加入前面的求和中）。这里针对求导的结果做了必要的化简，提取了3个部分中的共同成分，否则在部署成代码时则会额外计算共同的部分3次，从而降低计算速度。最终的计算速度比原先提高了1.8倍左右。并且在正向传输过程中需要cache的值也进一步减少。
 ```python
