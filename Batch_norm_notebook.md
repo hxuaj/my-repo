@@ -123,7 +123,7 @@ def batchnorm_forward(x, gamma, beta, bn_param):
 * $\mu_{1\times D}$为平均值组成的行向量。
 * $\sigma^2_{1\times D}$为方差组成的行向量。
 * $Y_{N\times D}$是BN层的输出。$l$是最终的loss，为一个标量。
-![BN_grapy](BN_graph.jpeg)
+![BN_graph](BN_graph.jpeg)
 
 已知```dout```即$\frac{\partial l}{\partial Y}$，定义一个元素全为1的列向量为$\Bbb 1_{N\times 1}$，用矩阵的方式表示BN的正向过程为：$$\hat{X}=(X-\Bbb{1} \cdot \mu)\odot (\Bbb{1} \cdot \frac{1}{\sqrt{\sigma^2+\epsilon}})$$ $$Y = \hat{X} \odot (\Bbb{1}\cdot \gamma)+\Bbb{1}\cdot\beta$$ 
 
@@ -141,15 +141,73 @@ $$\begin{aligned}
 
 3. $\frac{\partial l}{\partial X}$
  因为$X$和$\hat{X},\ \gamma,\ \beta$都有关，所以$\frac{\partial l}{\partial X}$要分为3个部分求导再相加。
-    $$\frac{\partial f}{\partial x_i} = \frac{\partial f}{\partial \hat{x}_i} \cdot \color{red}{\frac{\partial \hat{x}_i}{\partial x_i}} \color{black}{+ \frac{\partial f}{\partial \mu} \cdot }\color{red}{\frac{\partial \mu}{\partial x_i}} \color{black}{ + \frac{\partial f}{\partial \sigma^2} \cdot }\color{red}{\frac{\partial \sigma^2}{\partial x_i}}$$ 但需要注意这里是标量的求导，对于矩阵求导不能简单相乘，需要在$\operatorname{tr}()$中运用链式法则。
-    * $\frac{\partial l}{\partial \hat{X}}$
+    $$\frac{\partial l}{\partial x_i} = \frac{\partial l}{\partial \hat{x}_i} \cdot \color{red}{\frac{\partial \hat{x}_i}{\partial x_i}} \color{black}{+ \frac{\partial l}{\partial \mu} \cdot }\color{red}{\frac{\partial \mu}{\partial x_i}} \color{black}{ + \frac{\partial l}{\partial \sigma^2} \cdot }\color{red}{\frac{\partial \sigma^2}{\partial x_i}}$$ 但需要注意这里是标量的求导，对于矩阵求导不能简单相乘，需要在$\operatorname{tr}()$中运用链式法则。
+    * $\frac{\partial l}{\partial \hat{X}} \longrightarrow \left(\frac{\partial l}{\partial X}\right)_1$
+    $\\$
+    首先计算$\frac{\partial l}{\partial \hat{X}}$：
     $$\begin{aligned}
         \operatorname{d}l&=\operatorname{tr}\left( \left(\frac{\partial l}{\partial Y}\right)^T \operatorname{d}Y\right)=\operatorname{tr}\left( \left(\frac{\partial l}{\partial Y}\right)^T \operatorname{d}(\hat{X} \odot (\Bbb{1}\cdot \gamma))\right) \\ &= \operatorname{tr}\left( \left(\frac{\partial l}{\partial Y}\right)^T (\operatorname{d}\hat{X} \odot (\Bbb{1}\cdot \gamma))\right)=\operatorname{tr}\left( \left(\frac{\partial l}{\partial Y}\right)^T ((\Bbb{1}\cdot \gamma) \odot \operatorname{d}\hat{X})\right)\\&=\operatorname{tr}\left( \left(\frac{\partial l}{\partial Y}\odot(\Bbb{1}\cdot \gamma) \right)^T \operatorname{d}\hat{X}\right)
         \\ \frac{\partial l}{\partial \hat{X}} &= \frac{\partial l}{\partial Y}\odot(\Bbb{1}\cdot \gamma)
     \end{aligned}$$
-    * $\frac{\partial l}{\partial \hat{X}} \longrightarrow \frac{\partial l}{\partial X}$
+    Recall正向过程为：$\hat{X}=(X-\Bbb{1} \cdot \mu)\odot (\Bbb{1} \cdot \frac{1}{\sqrt{\sigma^2+\epsilon}})$
+    $$\begin{aligned}
+        \operatorname{d}l&=\operatorname{tr}\left(\left(\frac{\partial l}{\partial \hat{X}}\right)^T\operatorname{d}\hat{X}\right)\\ &=\operatorname{tr}\left(\left(\frac{\partial l}{\partial \hat{X}}\right)^T\left((\Bbb{1}\cdot \frac{1}{\sqrt{\sigma^2+\epsilon}})\odot \operatorname{d}X\right)\right)
+        \\&= \operatorname{tr}\left(\left(\frac{\partial l}{\partial \hat{X}}\odot (\Bbb{1}\cdot \frac{1}{\sqrt{\sigma^2+\epsilon}})\right)^T\operatorname{d}X\right)\\ \left(\frac{\partial l}{\partial X}\right)_1&=\frac{\partial l}{\partial \hat{X}}\odot (\Bbb{1}\cdot \frac{1}{\sqrt{\sigma^2+\epsilon}})
+    \end{aligned}$$
+    * $\frac{\partial l}{\partial \mu} \longrightarrow \left(\frac{\partial l}{\partial X}\right)_2$
+    $\\$
+    首先计算$\frac{\partial l}{\partial \mu}$，用标量表示梯度为：$\frac{\partial l}{\partial \mu}=\frac{\partial l}{\partial \hat{x}} \frac{\partial \hat{x}}{\partial \mu}+\frac{\partial l}{\partial \sigma^2}\frac{\partial \sigma^2}{\partial \mu}$，因为$\frac{\partial \sigma^2}{\partial\mu}=\frac{2}{N}\sum_{i=1}^N (\mu-x_i)=0$，所以$\frac{\partial l}{\partial \mu}=\frac{\partial l}{\partial \hat{x}} \frac{\partial \hat{x}}{\partial \mu}$。
+    $$\begin{aligned}
+        \operatorname{d}\hat{X}&=-\operatorname{d}(\Bbb{1}\cdot\mu)\odot(\Bbb{1}\cdot \frac{1}{\sqrt{\sigma^2+\epsilon}})\\&= -(\Bbb{1}\cdot \frac{1}{\sqrt{\sigma^2+\epsilon}})\odot(\Bbb{1}\cdot\operatorname{d}\mu)\\
+        \operatorname{d}\mu&= (\frac{1}{N}\cdot\Bbb{1}^T)\operatorname{d}X\\
+        \operatorname{d}l&=\operatorname{tr}\left(\left(\frac{\partial l}{\partial \hat{X}}\right)^T\operatorname{d}\hat{X}\right)\\
+        &=-\operatorname{tr}\left(\left(\frac{\partial l}{\partial \hat{X}}\right)^T\left((\Bbb{1}\cdot \frac{1}{\sqrt{\sigma^2+\epsilon}})\odot(\Bbb{1}\cdot\operatorname{d}\mu)\right)\right)\\
+        &=-\operatorname{tr}\left(\left(\frac{\partial l}{\partial \hat{X}}\odot(\Bbb{1}\cdot \frac{1}{\sqrt{\sigma^2+\epsilon}})\right)^T\Bbb{1}\cdot\operatorname{d}\mu\right)\\
+        &=-\operatorname{tr}\left(\left(\frac{\partial l}{\partial \hat{X}}\odot(\Bbb{1}\cdot \frac{1}{\sqrt{\sigma^2+\epsilon}})\right)^T\Bbb{1}\cdot(\frac{1}{N}\cdot\Bbb{1}^T)\operatorname{d}X\right)\\
+        \left(\frac{\partial l}{\partial X}\right)_2 &= -\frac{1}{N} \Bbb{1}\cdot\Bbb{1}^T\cdot\left(\frac{\partial l}{\partial \hat{X}}\odot(\Bbb{1}\cdot \frac{1}{\sqrt{\sigma^2+\epsilon}})\right)
+    \end{aligned}$$
+    * $\frac{\partial l}{\partial \sigma^2} \longrightarrow \left(\frac{\partial l}{\partial X}\right)_3$
+    $$\begin{aligned}
+        \operatorname{d}\hat{X}&=(X-\Bbb{1}\mu)\odot\left(\Bbb{1}\cdot(-\frac{1}{2}(\sigma^2+\epsilon)^{-\frac{3}{2}}\odot\operatorname{d}\sigma^2)\right)\\
+        \sigma^2&=\frac{1}{N}\Bbb{1}^T(X-\Bbb{1}\mu)\odot(X-\Bbb{1}\mu)\\
+        \operatorname{d}\sigma^2 &=\frac{2}{N}\Bbb{1}^T\left((X-\Bbb{1}\mu)\odot\operatorname{d}X\right)\\
+        \operatorname{d}l&=\operatorname{tr}\left(\left(\frac{\partial l}{\partial \hat{X}}\right)^T\operatorname{d}\hat{X}\right)\\
+        &=\operatorname{tr}\left(\left(\frac{\partial l}{\partial \hat{X}}\right)^T\left((X-\Bbb{1}\mu)\odot(\Bbb{1}\cdot(-\frac{1}{2}(\sigma^2+\epsilon)^{-\frac{3}{2}}\odot\operatorname{d}\sigma^2))\right)\right)\\
+        &=\operatorname{tr}\left(\left(\frac{\partial l}{\partial \hat{X}}\odot(X-\Bbb{1}\mu)\right)^T\left(\Bbb{1}\cdot(-\frac{1}{2}(\sigma^2+\epsilon)^{-\frac{3}{2}}\odot\operatorname{d}\sigma^2)\right)\right)\\
+        &=\operatorname{tr}\left(\left[\left(\Bbb{1}^T\left(\frac{\partial l}{\partial \hat{X}}\odot(X-\Bbb{1}\mu)\right)\right)\odot-\frac{1}{2}(\sigma^2+\epsilon)^{-\frac{3}{2}}\right]^T\operatorname{d}\sigma^2\right)\\
+        &=\operatorname{tr}\left(\left[\left(\Bbb{1}^T\left(\frac{\partial l}{\partial \hat{X}}\odot(X-\Bbb{1}\mu)\right)\right)\odot-\frac{1}{2}(\sigma^2+\epsilon)^{-\frac{3}{2}}\right]^T\frac{2}{N}\Bbb{1}^T\left((X-\Bbb{1}\mu)\odot\operatorname{d}X\right)\right)\\
+        &=\operatorname{tr}\left(\frac{2}{N}\left[\Bbb{1}\cdot\left[\left(\Bbb{1}^T\left(\frac{\partial l}{\partial \hat{X}}\odot(X-\Bbb{1}\mu)\right)\right)\odot-\frac{1}{2}(\sigma^2+\epsilon)^{-\frac{3}{2}}\right]\odot(X-\Bbb{1}\mu)\right]^T\operatorname{d}X\right)\\
+        \left(\frac{\partial l}{\partial X}\right)_3 &= \frac{2}{N}\Bbb{1}\cdot\left[\left(\Bbb{1}^T\left(\frac{\partial l}{\partial \hat{X}}\odot(X-\Bbb{1}\mu)\right)\right)\odot-\frac{1}{2}(\sigma^2+\epsilon)^{-\frac{3}{2}}\right]\odot(X-\Bbb{1}\mu)
+    \end{aligned}$$
+
+所以最终
+$$\begin{aligned}
+    \frac{\partial l}{\partial X} &= \left(\frac{\partial l}{\partial X}\right)_1+\left(\frac{\partial l}{\partial X}\right)_2+\left(\frac{\partial l}{\partial X}\right)_3 \\&= \frac{\partial l}{\partial \hat{X}}\odot (\Bbb{1}\cdot \frac{1}{\sqrt{\sigma^2+\epsilon}}) -\frac{1}{N} \Bbb{1}\cdot\Bbb{1}^T\cdot\left(\frac{\partial l}{\partial \hat{X}}\odot(\Bbb{1}\cdot \frac{1}{\sqrt{\sigma^2+\epsilon}})\right)\\&+ \frac{2}{N}\Bbb{1}\cdot\left[\left(\Bbb{1}^T\left(\frac{\partial l}{\partial \hat{X}}\odot(X-\Bbb{1}\mu)\right)\right)\odot-\frac{1}{2}(\sigma^2+\epsilon)^{-\frac{3}{2}}\right]\odot(X-\Bbb{1}\mu)
+\end{aligned}$$
+
+这里最终得到的$l$关于输入$X$的梯度没有进行必要的化简（会在下面标量求导法中提取3个分量中的共同部分如$\frac{\partial l}{\partial\hat{X}}$和$\sqrt{\sigma^2+\epsilon}$）。另外，实际中发现虽然结果一样，但使用行向量$\Bbb{1}^T$点乘矩阵$X$，比```np.sum(X, axis=0)```速度要快；矩阵乘以$\frac{1}{N}$比除以$N$要快。
+
+#### 2. 标量求导方法
+
+这里的标量求导是比较推荐的方法。在计算过程较为复杂时可以考虑先使用标量求导，再在最终部署时候写成矩阵的形式。使用这种方法需要特别注意到参数的形状和正向传输的过程（如矩阵和向量或标量相加在实际过程中是被broadcast过再相加的，反向传输求导时需额外注意）。
+![BN_graph](BN_graph.jpeg)
+
+$\frac{\partial l}{\partial \beta}=\sum_{i=0}^N \frac{\partial l}{\partial y_i}$，$\frac{\partial l}{\partial \gamma}=\frac{\partial l}{\partial y_i}\frac{\partial y_i}{\partial \gamma}=\sum_{i=0}^N \frac{\partial l}{\partial y_i}\cdot\hat{x_i}$，$\frac{\partial l}{\partial \hat{x_i}}=\frac{\partial l}{\partial y_i}\frac{\partial y_i}{\partial \hat{x_i}}= \frac{\partial l}{\partial y_i}\cdot\gamma$
 
 
+
+
+
+
+
+
+
+1
+2
+3
+4
+5
+6
 
 ---
 
