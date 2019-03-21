@@ -39,7 +39,7 @@ class Data_prep(object):
 
     def get_bndbox(self, root):
         """
-        Collect the information required by Glance training specification.
+        Collect the information required by training specification.
         Input: 
             - xml tree root
         Output: 
@@ -61,12 +61,12 @@ class Data_prep(object):
                 ymin = int(bndbox.find("ymin").text)
                 xmax = int(bndbox.find("xmax").text)
                 ymax = int(bndbox.find("ymax").text)
-                x, y, w, h = self.PascalVOC_to_Glance(xmin, ymin, xmax, ymax)
+                x, y, w, h = self.PascalVOC_to_txt(xmin, ymin, xmax, ymax)
                 self.bndbox_str += "{} {} {} {} ".format(x, y, w, h)
-                # bndbox_dic["obj%s"%num_bndbox] = PascalVOC_to_Glance(xmin, ymin, xmax, ymax)
+                # bndbox_dic["obj%s"%num_bndbox] = PascalVOC_to_txt(xmin, ymin, xmax, ymax)
         return self.bndbox_str, self.num_bndbox
 
-    def PascalVOC_to_Glance(self, xmin, ymin, xmax, ymax):
+    def PascalVOC_to_txt(self, xmin, ymin, xmax, ymax):
         """
         Tansform Pascal bounding box to training input format
 
@@ -81,7 +81,7 @@ class Data_prep(object):
     def write_text_file(self):
         """
         This function is intended to writing a .txt file
-        for Glance model training.
+        for model training.
         (format: filename n x y w h x y w h)
         
         """
