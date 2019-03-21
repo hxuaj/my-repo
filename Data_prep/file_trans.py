@@ -7,15 +7,18 @@ import xml.etree.ElementTree as ET
 class Data_prep(object):
 
     def __init__(self, root_path, pic_file_path, txt_file_path, xml_file_path, file_index):
-        # Be careful with the directory
-        # pic_file_path should be stored in txt file 
+
+        # File directory (pic, xml, txt)
+        # pic_file_path should be stored in txt file for training.
         self.root_path  = root_path
         self.pic_file_path = pic_file_path
         self.txt_file_path_pos, self.txt_file_path_neg = txt_file_path
         self.xml_file_path = xml_file_path
+
+        # Current file index
         self.file_index = file_index
 
-        # initial variables for bndbox information for each image
+        # initial variables for bndbox information for each image.
         self.bndbox_str = ""
         self.num_bndbox = 0
 
@@ -28,7 +31,7 @@ class Data_prep(object):
             - root, the root of xml tree
         """
 
-        #Find the root of xml tree
+        #Find the root of xml tree.
         xml_tree = ET.parse(self.xml_file_path + "pic{}.xml".format(self.file_index))
         root = xml_tree.getroot()
 
@@ -65,7 +68,7 @@ class Data_prep(object):
 
     def PascalVOC_to_Glance(self, xmin, ymin, xmax, ymax):
         """
-        Tansform Pascal bounding box to Glance training input format
+        Tansform Pascal bounding box to training input format
 
         """
         x = xmin
@@ -103,21 +106,22 @@ class Data_prep(object):
         self.write_text_file()
         #print(root_path)
 
-
+# Get the current .py file root path.
 root_path = os.path.dirname(os.path.realpath(__file__))
+
 pic_file_path = root_path + "\pic"
 txt_file_path_pos = root_path + "/training_input_txt/training_list_pos.txt"
 txt_file_path_neg = root_path + "/training_input_txt/training_list_neg.txt"
 xml_file_path = root_path + "/xml/"
 txt_file_path = (txt_file_path_pos, txt_file_path_neg)
 
-
+# Scan all the xml and generate string one by one.
 file_total = 0
 for file in os.listdir(pic_file_path):
     sub_path = os.path.join(pic_file_path, file)
     if os.path.isfile(sub_path):
         file_total += 1
 
-        # Generate txt file to record the data info
+        # Generate txt file to record the data info.
         gl = Data_prep(root_path, pic_file_path, txt_file_path, xml_file_path, file_total)
         gl.generate()
