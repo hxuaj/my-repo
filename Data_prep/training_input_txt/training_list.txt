@@ -1,0 +1,12 @@
+C:\Glance_data_prep\pic\pic1.jpg 1 530 351 524 465 
+C:\Glance_data_prep\pic\pic2.jpg 1 976 495 524 473 
+C:\Glance_data_prep\pic\pic3.jpg 1 390 226 306 188 
+C:\Glance_data_prep\pic\pic4.jpg 1 611 248 429 206 
+C:\Glance_data_prep\pic\pic5.jpg 4 128 96 293 243 840 379 243 288 692 133 119 151 349 409 732 215 
+C:\Glance_data_prep\pic\pic6.jpg 0 
+C:\Glance_data_prep\pic\pic7.jpg 1 1 1 572 491 
+C:\Glance_data_prep\pic\pic8.jpg 0 
+C:\Glance_data_prep\pic\pic9.jpg 0 
+C:\Glance_data_prep\pic\pic10.jpg 1 330 60 260 185 
+C:\Glance_data_prep\pic\pic11.jpg 0 
+C:\Glance_data_prep\pic\pic12.jpg 0 

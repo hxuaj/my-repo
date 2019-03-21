@@ -1,0 +1,26 @@
+<annotation verified="yes">
+	<folder>pic</folder>
+	<filename>pic4.jpg</filename>
+	<path>C:\Users\212565289\Documents\EE Team\Glance\training\pic\pic4.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>1280</width>
+		<height>720</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>person</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>611</xmin>
+			<ymin>248</ymin>
+			<xmax>1040</xmax>
+			<ymax>454</ymax>
+		</bndbox>
+	</object>
+</annotation>
