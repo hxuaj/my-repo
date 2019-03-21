@@ -118,6 +118,6 @@ for file in os.listdir(pic_file_path):
     if os.path.isfile(sub_path):
         file_total += 1
 
-for i in range(file_total):
-    gl = Data_prep(root_path, pic_file_path, txt_file_path, xml_file_path, i+1)
-    gl.generate()
+        # Generate txt file to record the data info
+        gl = Data_prep(root_path, pic_file_path, txt_file_path, xml_file_path, file_total)
+        gl.generate()
