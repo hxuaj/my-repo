@@ -1,7 +1,6 @@
 # -*- coding: UTF-8 -*-
 
 import os
-import sys
 import xml.etree.ElementTree as ET
 
 class Data_prep(object):
@@ -106,22 +105,24 @@ class Data_prep(object):
         self.write_text_file()
         #print(root_path)
 
-# Get the current .py file root path.
-root_path = os.path.dirname(os.path.realpath(__file__))
+if __name__ == '__main__':
+    
+    # Get the current .py file root path.
+    root_path = os.path.dirname(os.path.realpath(__file__))
 
-pic_file_path = root_path + "\pic"
-txt_file_path_pos = root_path + "/training_input_txt/training_list_pos.txt"
-txt_file_path_neg = root_path + "/training_input_txt/training_list_neg.txt"
-xml_file_path = root_path + "/xml/"
-txt_file_path = (txt_file_path_pos, txt_file_path_neg)
+    pic_file_path = root_path + "\pic"
+    txt_file_path_pos = root_path + "/training_input_txt/training_list_pos.txt"
+    txt_file_path_neg = root_path + "/training_input_txt/training_list_neg.txt"
+    xml_file_path = root_path + "/xml/"
+    txt_file_path = (txt_file_path_pos, txt_file_path_neg)
 
-# Scan all the xml and generate string one by one.
-file_total = 0
-for file in os.listdir(pic_file_path):
-    sub_path = os.path.join(pic_file_path, file)
-    if os.path.isfile(sub_path):
-        file_total += 1
+    # Scan all the xml and generate string one by one.
+    file_total = 0
+    for file in os.listdir(pic_file_path):
+        sub_path = os.path.join(pic_file_path, file)
+        if os.path.isfile(sub_path):
+            file_total += 1
 
-        # Generate txt file to record the data info.
-        gl = Data_prep(root_path, pic_file_path, txt_file_path, xml_file_path, file_total)
-        gl.generate()
+            # Generate txt file to record the data info.
+            gl = Data_prep(root_path, pic_file_path, txt_file_path, xml_file_path, file_total)
+            gl.generate()
