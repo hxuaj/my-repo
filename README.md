@@ -8,5 +8,3 @@ Some thoughts I wrote into codes.
 * Floating point arithmetic
 * Reduced row echelon form
 * The absolute error in numerical diffenentiation
-
-1/2/2019
