@@ -3,6 +3,7 @@
 ## Description
 
 This project is for Image/Video data collection from a camera which is plugged to a PC.
+
 Please set ```capture_fps```, ```i(pic saving freqency)```, ```rec_time```, ```resolution_scale```before capturing image data.
 The function will store video(.avi) and pictures(.jpg) simultaneously.
 Video is saved to "Data-video" folder and pictures are saved to "Data-pic" folder.
@@ -23,9 +24,7 @@ Video is saved to "Data-video" folder and pictures are saved to "Data-pic" folde
     ```python
     python .\data_collection.py
     ```
-
-4. Find the data in file "Data".
-5. Go to the next step Data labeling.
+4. Find the data in file "Data-video" and "Data-pic".
 
 ## License
 
