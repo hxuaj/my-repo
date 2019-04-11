@@ -21,7 +21,7 @@ Please set ```capture_fps```, ```i(pic saving freqency)```, ```rec_time```, ```r
 1. Set up data collection environment.
 2. Connect a camera to a PC or a raspberry pi with USB or CSI.
 3. Run "data_collection.py" in powershell or cmd.
-    ```python
+    ```
     python .\data_collection.py [ -f <capture_fps>][-i <pic_save_freq>][-r <rec_time>][-rs <resolution_scale>]
     ```
     Run ```python .\data_collection.py -h``` for help.
