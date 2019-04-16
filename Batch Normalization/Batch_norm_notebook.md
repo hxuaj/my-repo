@@ -66,7 +66,7 @@ Batch Normalization Algorithm 2: <div align=center> ![algorithm 2][picstr2] </di
    但是现实中，变换过程不是线性的，并且标准化的值不一定保证是Gaussian或互相独立的，但是BN还是有一定的作用。
 
 ### 正则化作用
-对于特定的一个样本可能出现在不同的Batch里，所以BN后会取决于不同batch的其他样本。某种程度上有一定正则化作用。
+对于特定的一个样本可能出现在不同的Batch里，所以BN后会取决于不同batch的其他样本。因为其使用了每个mini-batch的参数来近似训练集的参数，所以在每个隐含层中都引入了一定的noise（如Dropout），某种程度上有一定正则化作用。
 而在test的时候，训练的数据和test的数据都有相同的分布，也有正则化的效果。
 
 ## Implementation
