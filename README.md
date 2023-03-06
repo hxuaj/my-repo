@@ -10,3 +10,4 @@ View the notebooks in [nbviewer](https://nbviewer.jupyter.org/github/hxuaj/my-re
 * Reduced row echelon form
 * The absolute error in numerical diffenentiation
 * The Mental Game of Python
+* CUDA Cython extension implementation
