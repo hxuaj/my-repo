@@ -29,4 +29,4 @@ This is the repo of a CUDA accelerated vector reduce function, which uses a Cyth
     rmdir /s /q build
     ```
 
-Dependency: check `requirements.txt` for detail.
+Dependency: All tested under Windows10, check `requirements.txt` for detail.

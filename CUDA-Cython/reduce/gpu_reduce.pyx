@@ -15,7 +15,7 @@ def gpu_reduce(float[:] vector):
 # reduce.lib(tmpxft_0000459c_00000000-17_reduce.obj) : error LNK2038: 
 # 检测到“RuntimeLibrary”的不匹配项: 值“MT_StaticRelease”不匹配值“MD_DynamicRelease”(gpu_reduce.obj 中)
 # reduce.lib是通过nvcc编译.cu文件得到(对应静态C/C++ runtime library)，
-# 而gpu_reduce.obj是动态编译的。
+# 而编译产生gpu_reduce.obj时，cl.exe默认采用了/MD 动态编译导致link时和reduce.lib冲突。
 # fixed by add extra_compile_args '/MT', which causes the application
 # to use the multithread, static version of the run-time library. 
 # cudatoolkit 11.3.1, cython 0.29.28, numpy 1.21.5

@@ -2,4 +2,3 @@ python 3.9.12
 cudatoolkit 11.3.1
 cython 0.29.28
 numpy 1.21.5
-OS: Windows 10
