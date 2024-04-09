@@ -11,3 +11,4 @@ View the notebooks in [nbviewer](https://nbviewer.jupyter.org/github/hxuaj/my-re
 * The absolute error in numerical diffenentiation
 * The Mental Game of Python
 * CUDA Cython extension implementation
+* Edge detection for object with simple background
