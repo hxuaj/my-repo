@@ -12,3 +12,4 @@ View the notebooks in [nbviewer](https://nbviewer.jupyter.org/github/hxuaj/my-re
 * The Mental Game of Python
 * CUDA Cython extension implementation
 * Edge detection for object with simple background
+* ViT PyTorch pretrained model inference with flask docker implementation
