@@ -1,0 +1,8 @@
+Flask==3.0.3
+huggingface-hub==0.22.2
+# opencv-python==4.9.0.80
+pillow==10.3.0
+requests==2.31.0
+torch==2.2.2
+torchvision==0.17.2
+gunicorn==22.0.0
